@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daftar Tugas Dinamis</title>
+    <style>
+        /* Mengatur konten berada di tengah */
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            background-color: #f4f6f9;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        /* Mengatur lebar maksimal dan styling pada form */
+        .container {
+            width: 100%;
+            max-width: 600px;
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        input[type="text"], input[type="date"], select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: #45a049;
+        }
+
+        .task-list {
+            margin-top: 20px;
+        }
+
+        .task {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .task.completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .task-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-title {
+            font-weight: bold;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .task-actions button {
+            padding: 5px 10px;
+            font-size: 14px;
+        }
+
+        .priority-high { color: red; }
+        .priority-medium { color: orange; }
+        .priority-low { color: green; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Daftar Tugas Dinamis</h1>
+
+        <div class="form-group">
+            <input type="text" id="taskTitle" placeholder="Judul Tugas" required>
+        </div>
+
+        <div class="form-group">
+            <input type="date" id="taskDueDate">
+        </div>
+
+        <div class="form-group">
+            <select id="taskPriority">
+                <option value="high">Prioritas Tinggi</option>
+                <option value="medium">Prioritas Sedang</option>
+                <option value="low">Prioritas Rendah</option>
+            </select>
+        </div>
+
+        <button onclick="addTask()">Tambah Tugas</button>
+
+        <div class="task-list" id="taskList"></div>
+    </div>
+
+    <script>
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        function addTask() {
+            const title = document.getElementById("taskTitle").value;
+            const dueDate = document.getElementById("taskDueDate").value;
+            const priority = document.getElementById("taskPriority").value;
+
+            if (!title) {
+                alert("Mohon masukkan judul tugas.");
+                return;
+            }
+
+            const newTask = {
+                id: Date.now(),
+                title,
+                dueDate,
+                priority,
+                completed: false
+            };
+
+            tasks.push(newTask);
+            saveTasks();
+            renderTasks();
+            document.getElementById("taskTitle").value = '';
+            document.getElementById("taskDueDate").value = '';
+            document.getElementById("taskPriority").value = 'medium';
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveTasks();
+            renderTasks();
+        }
+
+        function toggleCompletion(id) {
+            const task = tasks.find(task => task.id === id);
+            task.completed = !task.completed;
+            saveTasks();
+            renderTasks();
+        }
+
+        function renderTasks(filter = 'all') {
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = '';
+
+            let filteredTasks = tasks;
+
+            if (filter === 'active') {
+                filteredTasks = tasks.filter(task => !task.completed);
+            } else if (filter === 'completed') {
+                filteredTasks = tasks.filter(task => task.completed);
+            }
+
+            filteredTasks
+                .sort((a, b) => new Date(a.dueDate) - new Date(b.dueDate))
+                .forEach(task => {
+                    const taskDiv = document.createElement("div");
+                    taskDiv.classList.add("task");
+                    if (task.completed) taskDiv.classList.add("completed");
+
+                    const priorityClass = task.priority === 'high' ? 'priority-high' : task.priority === 'medium' ? 'priority-medium' : 'priority-low';
+
+                    taskDiv.innerHTML = `
+                        <div class="task-info ${priorityClass}">
+                            <span class="task-title">${task.title}</span>
+                            <small>Jatuh Tempo: ${task.dueDate || 'Tidak ada'}</small>
+                        </div>
+                        <div class="task-actions">
+                            <button onclick="toggleCompletion(${task.id})">${task.completed ? 'Batal Selesai' : 'Selesai'}</button>
+                            <button onclick="deleteTask(${task.id})">Hapus</button>
+                        </div>
+                    `;
+
+                    taskList.appendChild(taskDiv);
+                });
+        }
+
+        renderTasks();
+
+        function filterTasks(status) {
+            renderTasks(status);
+        }
+    </script>
+</body>
+</html>

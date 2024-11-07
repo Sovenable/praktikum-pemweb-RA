@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keranjang Belanja Interaktif</title>
+    <style>
+       body {
+    font-family: Arial, sans-serif;
+    max-width: 600px;
+    margin: 0 auto;
+    background-color: #f4f6f9;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: #333;
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"], input[type="number"] {
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-top: 5px;
+    font-size: 16px;
+    transition: border-color 0.3s;
+}
+
+input[type="text"]:focus, input[type="number"]:focus {
+    border-color: #4CAF50;
+    outline: none;
+}
+
+button {
+    padding: 12px 20px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+    width: 100%;
+}
+
+button:hover {
+    background-color: #45a049;
+}
+
+.item-list, .total {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 20px;
+}
+
+.item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.item:last-child {
+    border-bottom: none;
+}
+
+.item-name {
+    font-weight: bold;
+    color: #333;
+}
+
+.delete-button {
+    color: #ff4d4d;
+    font-size: 14px;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.delete-button:hover {
+    color: #ff0000;
+}
+
+.total p {
+    font-size: 18px;
+    margin: 8px 0;
+    display: flex;
+    justify-content: space-between;
+}
+
+#subtotal, #discount, #finalTotal {
+    font-weight: bold;
+}
+
+#finalTotal {
+    font-size: 20px;
+    color: #4CAF50;
+}
+
+@media (max-width: 600px) {
+    body {
+        padding: 10px;
+    }
+
+    button {
+        font-size: 14px;
+    }
+
+    .total p {
+        font-size: 16px;
+    }
+
+    #finalTotal {
+        font-size: 18px;
+    }
+}
+
+    </style>
+</head>
+<body>
+    <h1>Keranjang Belanja Interaktif</h1>
+
+    <div class="input-group">
+        <label for="itemName">Nama Barang:</label>
+        <input type="text" id="itemName" placeholder="Masukkan nama barang" required>
+    </div>
+    
+    <div class="input-group">
+        <label for="itemPrice">Harga Barang (Rp):</label>
+        <input type="number" id="itemPrice" placeholder="Masukkan harga barang" min="0" required>
+    </div>
+    
+    <button onclick="addItem()">Tambahkan Barang</button>
+
+    <div class="item-list" id="itemList">
+        <h2>Daftar Barang</h2>
+        <!-- Daftar barang akan muncul di sini -->
+    </div>
+
+    <div class="total" id="totalDiv">
+        <h2>Total Harga</h2>
+        <p id="subtotal">Subtotal: Rp 0</p>
+        <p id="discount">Diskon: Rp 0</p>
+        <p id="finalTotal">Total Setelah Diskon: Rp 0</p>
+    </div>
+
+    <script>
+        let cart = [];
+
+        function addItem() {
+            const itemName = document.getElementById("itemName").value;
+            const itemPrice = parseFloat(document.getElementById("itemPrice").value);
+            if (!itemName || isNaN(itemPrice) || itemPrice <= 0) {
+                alert("Mohon masukkan nama dan harga barang yang valid.");
+                return;
+            }
+
+            cart.push({ name: itemName, price: itemPrice });
+            document.getElementById("itemName").value = '';
+            document.getElementById("itemPrice").value = '';
+            displayItems();
+            calculateTotal();
+        }
+
+        function removeItem(index) {
+            cart.splice(index, 1);
+            displayItems();
+            calculateTotal();
+        }
+
+        function displayItems() {
+            const itemList = document.getElementById("itemList");
+            itemList.innerHTML = '<h2>Daftar Barang</h2>';
+            cart.forEach((item, index) => {
+                itemList.innerHTML += `
+                    <div class="item">
+                        <span class="item-name">${item.name} - Rp ${item.price.toLocaleString()}</span>
+                        <span class="delete-button" onclick="removeItem(${index})">Hapus</span>
+                    </div>
+                `;
+            });
+        }
+
+        function calculateTotal() {
+            let subtotal = cart.reduce((total, item) => total + item.price, 0);
+            let discount = 0;
+
+            // Aturan diskon
+            if (subtotal > 2000000) {
+                discount = subtotal * 0.15;
+            } else if (subtotal > 1000000) {
+                discount = subtotal * 0.10;
+            }
+
+            if (cart.length > 5) {
+                discount += subtotal * 0.05;
+            }
+
+            const finalTotal = subtotal - discount;
+
+            // Update tampilan total
+            document.getElementById("subtotal").textContent = `Subtotal: Rp ${subtotal.toLocaleString()}`;
+            document.getElementById("discount").textContent = `Diskon: Rp ${discount.toLocaleString()}`;
+            document.getElementById("finalTotal").textContent = `Total Setelah Diskon: Rp ${finalTotal.toLocaleString()}`;
+        }
+    </script>
+</body>
+</html>
