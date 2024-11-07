@@ -98,20 +98,20 @@
         const tugasWeight = 0.3;
         const utsWeight = 0.3;
         const uasWeight = 0.4;
-        const passingScore = 60;
-
+    
         function calculateGrade() {
             const tugas = parseFloat(document.getElementById("tugas").value);
             const uts = parseFloat(document.getElementById("uts").value);
             const uas = parseFloat(document.getElementById("uas").value);
             const resultDiv = document.getElementById("result");
+    
             if (isNaN(tugas) || tugas < 0 || tugas > 100 ||
                 isNaN(uts) || uts < 0 || uts > 100 ||
                 isNaN(uas) || uas < 0 || uas > 100) {
                 resultDiv.innerHTML = "<span class='fail'>Masukkan nilai antara 0 dan 100 untuk semua komponen.</span>";
                 return;
             }
-
+    
             let weightedAverage = (tugas * tugasWeight) + (uts * utsWeight) + (uas * uasWeight);
             
             let grade;
@@ -120,10 +120,9 @@
             else if (weightedAverage >= 70) grade = 'C';
             else if (weightedAverage >= 60) grade = 'D';
             else grade = 'E';
-
-            const status = weightedAverage >= passingScore ? "Lulus" : "Gagal";
-            const statusClass = weightedAverage >= passingScore ? "pass" : "fail";
-
+    
+            const status = (grade === 'A' || grade === 'B' || grade === 'C') ? "Lulus" : "Gagal";
+            const statusClass = (status === "Lulus") ? "pass" : "fail";
             resultDiv.innerHTML = `
                 <p>Nilai Tugas (30%): ${tugas * tugasWeight}</p>
                 <p>Nilai UTS (30%): ${uts * utsWeight}</p>
@@ -134,5 +133,6 @@
             `;
         }
     </script>
+    
 </body>
 </html>

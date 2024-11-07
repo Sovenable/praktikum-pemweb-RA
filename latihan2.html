@@ -150,7 +150,6 @@ button:hover {
 
     <div class="item-list" id="itemList">
         <h2>Daftar Barang</h2>
-        <!-- Daftar barang akan muncul di sini -->
     </div>
 
     <div class="total" id="totalDiv">
@@ -201,7 +200,6 @@ button:hover {
             let subtotal = cart.reduce((total, item) => total + item.price, 0);
             let discount = 0;
 
-            // Aturan diskon
             if (subtotal > 2000000) {
                 discount = subtotal * 0.15;
             } else if (subtotal > 1000000) {
@@ -214,7 +212,6 @@ button:hover {
 
             const finalTotal = subtotal - discount;
 
-            // Update tampilan total
             document.getElementById("subtotal").textContent = `Subtotal: Rp ${subtotal.toLocaleString()}`;
             document.getElementById("discount").textContent = `Diskon: Rp ${discount.toLocaleString()}`;
             document.getElementById("finalTotal").textContent = `Total Setelah Diskon: Rp ${finalTotal.toLocaleString()}`;
